@@ -1,0 +1,820 @@
+React Development Notes (Lynda Course)
+
+Using ECMA Script 2015
+
+The var variable you create for a for loop will exists OUTSIDE of the for loop since it is instantiated before the curly brace
+
+    - So you would use let instead
+        - CONST works the same, expect it's a constant (duh)
+            - Great for use when importing stuff from other libraries, so they're not accidentally changed.
+            - They're also used to define functions that won't be changed
+
+
+    Ex.
+
+    // Check out this function
+
+    const square = (a) => {
+        return a * a;
+    }
+
+    // This is equivalent to this:
+
+    const square = a => a * a;
+
+    // Notice it takes in one argument (a) and returns one value (a^2)
+
+    Another benefit to the arrow scope for functions is letting the THIS keyword point to the parent scope rather than the THIS within an object definition (something about closures... :(  )
+
+    Check it:
+
+    exports.i = 'this is a thing' // i added to demonstrate, exports blank by default
+
+    console.log(this); // {i: 'this is a thing'}
+
+    let util = {
+        f1: function() {
+            console.log(this);
+        },
+
+        f2: () => {
+            console.log(this);
+        }
+    }
+
+    util.f1(); // { f1: [Function: f1], f2: [Function: f2]} THIS references object here
+
+    util.f2(); // {i: 'this is a thing'} THIS references parent here
+
+^^^ Really helps with closures
+
+    These are also equivalent:
+
+    const X = {
+        PI,
+        sum,
+        square
+    };
+
+    // instead of typing this:
+        // const square = X.square;
+        // const square = X.sum;     etc...
+
+    // try this to avoid redundant typing:
+
+    const { square } = X;
+
+    // This also works, and shows how effective this curly brace syntax is:
+
+    const { PI, sum, square } = X;
+
+    When bringing in requires for the React components, this will be super useful:
+
+    Ex.
+
+    Instead of this:
+
+    // const Component = require('react').Component;
+
+    Do this:
+
+    const { Component } = require('react');
+
+    ^^^ Happy fun time
+
+    SPREAD OPERATOR
+
+    ...
+
+
+
+
+    We'll be using class to define React components.
+
+    2. SETUP AND CONFIGURATIONS
+
+    Make sure all of your files are ready to be used (check with Github repository)
+
+    https://github.com/jscomplete/learn-fullstack-javascript
+
+    $ npm init
+
+    Dependencies (these should be configured globally for whenever you start building code from wherever, you HAVE TO KEEP THESE ORGANIZED AND UPDATED):
+
+    Express.js
+    $ npm install --save express
+
+    MongoDb Driver:
+    $ npm i -S mongodb
+
+    Front End is pure React:
+    $ npm i -S react react-dom
+
+    Webpack configuration to preserve modularity:
+    $ npm install --save-dev webpack
+
+    Babel to translate JSX extension code to something React understands:
+    $ npm i -D babel-cli babel-loader babel-preset-es2015 babel-preset-stage-2 babel-preset-react
+
+    nodemon to automatically integrate updated state:
+    $ npm i -D nodemon
+
+    eslint to keep you from fucking everyting up (which you do quite often):
+    $ npm i -D eslint
+
+7. GETTING STARTED WITH REACT
+
+    1. Get the API for server communication ready
+        - import React into your index.js file
+        - instantiated a ReactDOM via the render method lets react take over, at least wherever you tell it to go within the React that you put there.
+
+    2. run npm run dev to get the backend of React ready to talk to node
+    3. Put a script tag somewhere inside your JS that talks to the generated 'bundle.js' file
+    4. start the server, and make sure your server isn't fucked up, then you'll see the render() content when you ask a browser to serve it up
+
+        - You can use JSX to put pure HTML in here, which is pretty nice if you ask me
+
+            - If you put curly braces inside here, you can include JS inside your HTML, neatto....
+
+
+    8. REACT COMPONENTS
+
+        React components are literally just JS functions that return the JSX (which is essentially just HTML) for you to use.
+
+            - Passing in props (for properties) into these functions allow you to send in variables and what not
+
+                - These are used in the JSX like any other variable
+                    - in the render function we have the variable "headerMessage"
+                    - in the App function we call it via {props.headerMessage}
+
+            - We have to validate variables using props via props validation in App.propTypes object in the React API
+
+                - Within the object, we will create validations for every prop variable we pass, ensuring it's the data we want.
+                Ex. from lesson 3.2
+                    App.propTypes = {
+                        headerMessage: React.PropTypes.string
+                    }
+
+                    - In the demo, ^^^that's how they did it, but you had to import PropTypes and do it straight from that library for whatever reason.
+
+                - You can (and should) establish prop type defaults for when the data isn't given
+
+        MAKING SEPARATE (BUT EQUAL) COMPONENTS
+
+        - Components are able to be modular, which makes them really clean to read/write, as well as easy to pass information to specific areas (unlike fucking Angular)
+
+        - Also note that you can pass a prop variable directly in, without the need to use props, though I imagine this is less than ideal in most circumstances
+
+        - You must specify the prop types and parameters for each component
+
+        - Good style to give top level elements, class names
+
+        * It's apparently good practice to define React Component per file
+
+            - doing this requires you to export the component at the end of the file
+
+            - and then importing them into your App component, which then passes everything into the render thingy, perfect
+
+        - Structure here is pivotal to getting everything to not be a pain in the ass
+
+        - this practice helps isolate responsibilities for each component and reduces overhead on the whole system to deliver content, this seems more efficient computationally
+9. COMPONENT STATE
+
+- We have not yet created the ability to update component's state through REACT
+
+- Our app will change the header according to where we are in the app.
+
+    - Specifically, we'll be changing the following code:
+
+        const App = () => {
+
+    to the following:
+
+        class App extends React.Component {
+
+    // now we need a render function for real
+
+    Now state is allowed on the component. (you only need to do this if you're going to introduce state to a component, static stuff should be left as is.)
+
+    - We now build a constructor for the state object(s) that we pass into the component.
+
+        - However, since we made our component a class, we can assign state direct to the this keyword object of the class (like a boss)
+
+        - we went from this:
+
+        constructor(props) {
+            super(props);
+            this.state = { test: "Fried checken and waffulls"};
+        }
+
+        to this:
+
+        state = { test: "Fried checken and waffulls"};
+
+
+    - Now we can pass this.state.[blase] to whatever curly brace thingy we want in the component {this.state.pageHeader}
+
+10. COMPONENT LIFECYCLE
+
+- We can also write custom events that happen around a component's lifecycle
+
+    componentDidMount() {
+    }
+
+    // guarantees successful browser mounting
+
+    You can force stuff to unmount from your react api as well
+
+In mount, we put 3rd party integration and AJAX stuff in here. that way we know the DOM is ready to go. We also fire timers and listeners,
+
+In unmount, we'll clean those timers and listeners. that way they won't leak out of the scope of a component.
+
+11. LOADING TEST Data
+
+- We'll be using the node module, json-loader, and configuring our webpack config, adding the json-loader to the list of loaders (see 07_01 webpack for details)
+
+- Once we have the json-loader, we can pass json data directly into a component via import, and use it for variables and whatever else
+
+- We're now gonna break down the components further according to the testData we'll be pushing into the page
+
+    - We made a ContestPreview component to export, that will take in a 'contest' object for each contest object in the testData.
+
+    - We then went into App.js and made a new 'ContestPreview' component under the render function, using the ... syntax and the props with the contest array passed in (only grabbing the first object in the array)
+
+        - This object should use prop validation btw
+
+    - We then took that object and (logically) put it inside a loop so we could render the entire array in one shot
+        -Neat
+
+        - We used a 'map call'
+
+            - This is heavy Javascript, worth reviewing a couple of times:
+
+            {this.props.contests.map(contest =>
+                <ContestPreview {...contest} />
+            )}
+
+            this allows us to generate everything in one shot by making a 'contest function' (object actually) that gets all of the contest data mapped to components for each thing in the array
+
+    12. WORKING WITH SASS
+
+    - Sass is a special type of CSS that allows nesting and things like that
+
+        - We can either make webpack translate the SASS into CSS or we make node do it, which does the magic before server has to load it, that sounds better, so let's do that.
+
+        - You a node module to do this, so you'll have to wait for internet connection...
+
+            - We also need to import path from 'path';
+
+            - We then instantiate the middleware in our server file, using the sassMiddleware() function to define the source directory and destination(s)
+
+    13. READING FROM STATE
+
+    - When you post things to React dynamically, you need to tell React what it is by specifying a key in the component instantiation (in App.js)
+
+    Our contest preview component here:
+
+    <ContestPreview key={contest.id} {...contest} />
+
+    - This is because we used a 'map' call
+        - Try not to use the array index, try to use another unique element. In the case of the current testData, we already have a unique ID via contest.id, so we don't have to worry about it, and APIs will generally provide you an id to use
+
+
+    *** BUT WHAT IF WE DON'T YET HAVE THE DATA? ***
+
+    [Our edits will now go into the components/index.js file]
+
+    We cleaned out the data, just giving 'contests' an empty array..
+
+    Now instead of using 'props' to render the component like we've been doing, we'll render the stuff from the state object that we defined in App.js
+
+        - First we define the 'contests' object inside state, then we change our this.props.map() to this.state.map() accordingly.
+
+        - Next we make sure to import the data from our testData.json, or wherever you're getting the info from..
+
+
+        - Finally, once we find out that the data is available (they signed in, a transfer is completed, whatever), we'll update the state in our componentDidMount function
+
+        The resulting code in componentDidMount:
+
+            this.setState({
+                contests: data.contests
+            })
+
+        - We can now do stuff to the data going to the components dynamically, like slice stuff out.
+
+    14. WORKING FROM A DATA API
+
+    - We're now (finally) going to use the api endpoint we put into our router at the beginning of the course.
+
+    - We'll be working in the index.js IN THE API DIRECTORY here
+
+        - We filled out our get() in the api index to fetch contest data when we give the url:
+
+        http://localhost:8080/api/contests
+
+    - Now we're gonna do an AJAX request where we used to pull our data in directly from memory in App.js
+
+    We use:
+        npm install axios
+
+    We then set the state in the same way we did from memory, just using the axios .get() method to fetch the data, except calling on the response object (resp) we created for the get method.
+
+    Our componentDidMount function at this point:
+
+    componentDidMount() {
+      axios.get('/api/contests')
+          .then(resp => {
+              this.setState({
+                contests: resp.data.contests
+              });
+          })
+          .catch(console.error)
+    }
+
+    15. FETCHING DATA FROM THE SERVER SIDE
+
+    What if we have JS disabled??
+
+        - We only get the blank content default from the get request
+
+            - This is actually what most search engines see when grabbing your application/site
+
+        - If you curl it from the shell, you only get the barebones HTML, no React components
+
+    - To fix this, we need to create an initial view that's prepared by the server
+
+    We're going to treat this API data load completely differently from the rest of the React render
+
+    - We made 'serverRender.js' to make a get request specifically for this data.
+
+        - Notice our get has to use the full url, since it runs separately from the servers fetching thingy.
+
+        *** In config.js, we set the host environment info to '0.0.0.0' so it can be called from other machines
+
+        *** We then created a function that will return the appropriate URL for us to use in serverRender.js
+
+            *** notice that it uses `` as delimiters, NOT ''
+
+                - I guess this is how you write urls, remember, `` not ''
+
+            - Notice that the config file will now return a URL specific to the host and port configs we put together in config.js, which lets us fetch the data directly from our api, without starting our server
+
+        - Next we make sure to import the config info from config.js to serverRender
+
+        - Finally, we use the promise in serverRender to check for a response and print it
+
+    - We need to import the serverRender file into server.js before we can use it (obviously)
+
+    - Our server's listen function should now also include the config.host, which we'll be grabbing via our serverRender voodoo.
+
+    16. WRITING DATA FROM (15) TO THE REACT DOM SERVER
+
+    - We use the react-dom-server package in serverRender
+
+        - import that ^^^, and also your App.js into your serverRender file.
+
+        - Now we can put our App directly into the ReactDOMServer render, in the get request of this file (in the promise specifically)
+
+    - But now we have to make our index.js accommodate our weird new initial data
+
+    - Then in our App.js, the state for contests has to be this data. So our state now looks like this:
+
+    state = {
+      pageHeader: 'Naming Contests',
+      contests: this.props.initialContests
+    };
+
+    - Finally, we configure serverRender to grab this specific data for the App component, your ReactDOMServer function call will look like this:
+
+    ReactDOMServer.renderToString(
+    <App initialContests={resp.data.contests}/>
+    );
+
+    Then we made the above ^^^ into a return and put it all inside a function called serverRender()
+
+    Here it is:
+
+    const serverRender = () =>
+        axios.get(`${config.serverUrl}/api/contests`)
+          .then(resp => {
+            return ReactDOMServer.renderToString(
+            <App initialContests={resp.data.contests}/>
+            );
+          });
+
+          good god...
+
+    Now we import this function from serverRender.js into server.js so we can call it in the get method...
+
+    Yay, we did it, check out server.js (severe number of changes)
+
+    But after this works, we get a problem, in that the page attempts to load twice (once with the serverRender function, and once with the actual server load). So we essentially have two DOMs trying to load, which is lame.
+
+        - It will load up the first one, then scrape all of the data that's going to be loaded from the second load, then push it back into the app.
+
+    17. FIXING THE CHECKSUM (DOUBLE LOAD) PROBLEM
+
+
+    On the frontend (index.js in src), we can't load the page with an empty array. We have to load up the same data that we use on the server for the two to sync up correctly.
+
+        - We also shouldn't reset the state, since we would have the data we need already from the initial load
+
+    We're gonna rewrite our componentDidMount() function
+
+    - First we make another axios.get call in index.js (again, the src folder one), grabbing the data for the contests with the render happening inside the get call, like this:
+
+
+    axios.get('api/contests')
+        .then(resp => {
+            ReactDOM.render(
+              <App initialContests={resp.data.contests} />,
+              document.getElementById('root')
+            );
+        })
+        .catch(console.error);
+
+    -NOTE: Now we don't need the axios in our App.js file, since it fetches the correct stuff here in index.js (src folder), so there's no need to import it anymore.
+
+        - We also no longer need to use the setState in index.js anymore, but now we need to import axios here.
+
+    -ANOTHER NOTE: Apparently react v17 will stop supporting ReactDOM.render() for attaching HTML out of the server in the manner described in the videos. It asked us to instead use ReactDOM.hydrate(). So I will be changing them to this for the rest of the series.
+        -Wu Tang
+
+    -FINAL NOTE, THIS METHOD STILL CALLS THE API ONE TIME FOR NO REASON, so now we're gonna make an even better way to load it into the server, and then have it chill hard af.
+
+    THIS HAPPENS IN SERVERRENDER.JS
+
+    - Make it return the stuff you need from the API right here
+
+    - instead of just the renderToString function serverRender's get returned, we're now returning an object that contains the initialMarkup and the data that we get from the response. Boss AF. It should be requested in the promise as a JSON object
+
+
+    NOW WE GO TO SERVER.JS AND CONFIGURE IT TO GET THESE THINGYS FROM SERVERRENDER
+
+    - These arrive as an object in the promise in our server.get call
+
+        - We also have to replace them in the res.render, and again in our dumb index.ejs file so they're included for loading to the inital components.
+
+        - Now we use initialData as a script (it needs to be stringified..), and initialMarkup replaces the content variable
+
+        This is the script tag:
+
+        <script type="text/javascript">
+             window.initialData = <%- JSON.stringify(initialData) -%>
+        </script>
+
+        - And we can now use window as a global variable holding all of the data.
+
+        Now in our src index.js, we don't have to call the api with a get function at all, we just render the data directly, since we already have it in the window global variable
+
+            - So we don't need to import axios here either now
+
+        *** You should rewatch the end of 5.3 to really, really understand how and why this method of rendering the inital page is beneficial. From what I understand, not only do you get the data and initial page up in one shot, you get both a performance boost from React syncing up with the page without having to reload anything or make any redundant calls, and you get a full page for search engines to crawl and say is a content-rich, interesting page. I hope that's what it means
+
+        ^^ Some people would call this method a hack, and I don't know why :((
+
+
+        18. HANDLING EVENTS AND STUFF
+
+        Before we do anything else, we're gonna refactor the code so that each contest box is its own component.
+
+            - Notice in the new component that since you pass 'contests' in as your props, you don't need 'this.state.blase', you just do blase
+
+        - After we make the ContestList component, we make it render under our Header component in App.js
+
+        NOW FOR THE ONCLICK HANDLER
+
+        The click event will be an onClick within the JSX that we wrote
+
+        -NOTE: This onClick event needs access to every iteration a the contest object that gets loaded up for the page, which would be 4 separate components in this case
+
+        - The thing is, WE CANNOT DO THIS in a stateless component, as it would generate four separate onClick functions, most likely resulting in buggy click event handling
+
+        THE SOLUTION: UPGRADE THE CLICK EVENTS TO A REACT CLASS COMPONENT
+
+        -We're going to use the same markup JSX we had within the const ContestPreview function, just inside this new class component instead
+
+            - Note that now we need to use this.props on the contest objects, since its nested in the class or whatever...
+
+            - We also need to now define the proptypes for the component, because the variables are now props of the class component (or whatever...)
+
+        -We're now ready to make the click handler... It will be a simple function above our render()
+
+        - Don't forget to import the { Component } object from react at the top
+
+        - Pay really close attention to how these events are structured, you broke your code like a thousand times on things that were very, very preventable
+
+        19. NAVIGATING TO A CONTEST VIA HTML5'S BROWSER HISTORY
+
+        First we'll get used to this without a library, so we know wtf is going on
+
+        For complicated routing, the react-router library is apparently the way to go..
+
+        - Notice that the function is really simple, and we would just need to put in as arguments where the browser is supposed to go on our site/app.
+
+        Now we'll be making a new 'fetchContest' function that gives us the Contest Id and url to it through a pushState call, which puts the move to this page on our browser history (I think, do some googling)
+
+            -Notice that we made this function on our main app component (App.js) so we could pass it down to the children (the contest components) with the correct links and ids and what not.
+
+        *** Also notice that our click event handlers use this.blase, learn why and know it (I think it's because the component is considered an object, and this is self-referential for any functions that are currently on it)
+
+        - Now we have to add the new onContestClick functionality to our ContestList component as well as its PropTypes list (it's an argument being passed from elsewhere, so put it in the props list for the ContestList component as well)
+
+        Now over to ContestPreview, where we'll do the same additions, this time for the this.props.onClick function and the this.props.id.
+
+         Then we'll finally add this to our handleClick function, giving onClick this.prop.id as an argument.
+
+
+        Now, depending on what we click on, we'll get something like this:
+
+        http://localhost:8080/contest/4
+
+        Where each number at the end is a unique number for each contest. Fun stuff
+
+        WE CAN GO BACK IN HISTORY EASILY WITH THIS! Well for now, it's just the url being remember, so it's time for...
+
+        20. CHANGING THE CONTENT ON CLICK EVENTS (LOOKING UP CONTESTS ON ROUTE)
+
+        First note that looking up solely contests gives us an array, which is bad for runtime (link: http://localhost:8080/contest/)
+
+        So we'll convert the array into an object to retrieve it in constant time. This conversion happens in index.js (the API version)
+
+
+            - We'll be doing this with the reduce function
+
+            In here we simply map the ids to the keys and the actual contest objects to the values for those keys.
+
+                - We can make this a variable to make it easy to see how the get brings back the data
+
+        Now in ContestList.js, the 'contests' variable is an object, not an array, so we have to change it to match, grabbing each key so we can extract the values
+
+        - Now when we expose the contests objects, we'll be using the keys
+
+        This is the JSX for it:
+
+        {...contests[contestId]}
+
+        - Don't forget to update the PropType
+
+        Now we're going to add functionality in App.js for it to dynamically render things like the contest header and information within the page based on which contest is chosen.
+
+            - We do this directly by using setState to give us the information we need from each component on screen (well, the underlying data that it points to to be more precise). When we click one of the contests, setState grabs the data (the contest name and id in this case) and makes it available, so that we can change the values of things in state based on their object's 'key' (or name variable name really)
+
+        *** With that contest id, we can now change things in the render function of App.js to alter the page itself
+
+        - We'll be changing contest list, by simply wrapping it in a function
+
+            - We use a conditional to ask if the state has one of the IDs on it, if it does, we pump that component out, if it doesn't, we display the contestList.
+
+        We're gonna make a new file for the Contest component in the conditional:
+
+            - Since this component is gonna handle a bunch of different stuff, we'll make it a class component
+
+        Figure out what destructuring objects is supposed to be
+
+        Now we can use the id with the conditional component load to have the right contest load up when clicked on inside the contest list component.
+
+        21. FETCHING CONTEST INFORMATION FROM THE API
+
+        From where we left off in the last lesson, we don't actually grab any information from the server (we simply change the title to match the name of the contest clicked)
+
+        - To do this, we'll extend our api routes to fetch the appropriate info when the contest Id is passed in the url
+
+        This happens inside index.js (the API one)
+
+            - So the contest Id will be in the request parameters because express works like magic apparently.
+
+            - We'll use the Id to find the appropriate contest in the contests array within the server.
+
+            - Once we start using MongoDb, we'll just switch the .get() and .send() in index.js (api) for the necessary mongo information.
+
+        - We'll then make a new file of function that fetch information call api.js (in the src directory)
+
+        - Now we go back to App.js and put our setState inside an api.fetchContest wrapper (why??)
+
+            - at least now we don't call things from the state, we call them from the contest object we receive from the api
+
+            - A lot of stuff happened inside App.js, mostly to streamline how the data is stored upon receiving it. We modified the 'contests' object on the state through voooodoo, caching the new info onto the state.
+
+        REFACTORING
+
+        We'll be changing this in App.js
+
+        this.state.contests[this.state.currentContestId]
+
+        into a cleaner function call.
+
+        - We'll also remove the page header from the state, making a function to retrieve it.
+
+
+        Only put stuff on the state that you can't compute, otherwise just compute it
+
+
+            i. Refactoring the serverRender file
+
+                - We'll now be passing the initalData straight in, rather than initialContest
+
+            - The beginning state will now be defined simply be 'this.props.initialData'
+
+
+
+    ALLOWING THE BROWSER TO REFRESH
+
+    - We have to put in a new route for this using express, which can handle multiple routes
+
+    Passing in the resulting 'req.params.contestId' to serverRender lets you do all sorts of cool stuff to it
+
+    SERVER SIDE RENDERING
+
+    The return structure in this video is worth watching a couple of times to understand how he transfer one-off data to appropriate places to allow us to move through the api more fluidly
+
+        - Notice when you're through with this process, your application will reload even with JS disabled, since the page is fetched and held directly from the server in you cache (I think about the cache thing)
+
+
+    NAVIGATING TO A LIST OF CONTESTS
+
+    We're gonna change the UI so we can move back into the contest list page..
+
+    - This takes place in Contest.js, where we simply add a link to the interface
+
+        - Now we need to add the functionality within the <Contest> component in App.js, which will further require us to change the routing in api.js (top leve, not the component JS file in this case)
+
+        - Adding stuff to the site like this would be good practice for you
+
+
+        HANDLING THE BACK AND FORWARD BUTTONS
+
+        - We need to handle the popState event in the history api
+
+        - this will happen in componentDidMount function of App.js
+
+        - Once you add the function, you gain access to the object for the state of that particular page (null in the contest list, and whatever it is for the actual contest in this case)
+
+            NOW WE'RE GONNA DECOMPOSE IT MORE... FOR SOME REASON
+
+        - well, notice that the state is different depending on when, where and how you navigate to a page, when you first land on the contest list, the state is null, but when you click back from a contest, the same page instead has a null object.
+
+        - So now that we're using an event, we have to clean it every time we use it in componentWillUnmount
+            - We should that this is necessary by clearing the component and then attempting to change the state, which confused React since the new component we displayed wasn't the 'mounted' component that we have on the event
+
+        - All we have to do to fix this is to use onPopState(null) in the unmounting process, which gets rid of the old component data. This gets rid of the error of moving into unchartered territory for the computer.
+
+    READING FROM MongoDb
+
+    - LOAD THE DATA
+
+    - Once its all up in the cloud or whatever, we have to reconfigure index.js (api version) to import the data from mongo and not from memory
+
+        - We're deleting the testData file
+        - We're deleting all functions that use in-memory data
+    - Our api index is basically naked at this point
+
+    -import the mongo stuff, and assert
+
+    - Check out the way the MongoClient.connect is configured, it's pretty crazy
+
+    *** check out mongodb's node-mongodb-native functions at github
+
+        - From here we're using findAllDocuments()
+
+        We'll be using .each() to loop over all the docs returned so we can put them into our object that stores the contests (remember we changed from array to object earlier, see I pay attention)
+
+        - remember that JS is async, so we have to have our response INSIDE each mdb call
+            - So we make an object to fill outside of the .collection and fill it up via .add
+
+        - We also need and if() in here in case there is nothing to deliver (end of the data we need). This is where we'll respond with the object 'contests'. smart...
+
+    - Notice though that this is waay more info than we need on the first page, so we need to do something in Mongo that excludes info that you don't specifically ask for
+
+        - This is .project({}) which allows you to parameterize what you want
+
+    For our individual contest gets, we will use the findOne method, and convert the id we have to a number that MongoDb will recognize and spit our contest out at us. this is because the id's are numbers in the database
+        - We'll get a promise, so do a .then()
+
+    Finally, we wrapped contests in as an object since that's how we've been reading it in our application
+
+
+    FETCHING A LIST OF NAMES
+
+    - He added a bunch of HTML to these files..
+
+    - This lesson is basically for retrieving stuff through the URI, not for anything within the interface itself
+
+    - We're changing the index.js file to find these names
+
+    - this ends up fetching the names (from the nameIds) and places them in our request as key/value pairs.
+
+    NOW WE NEED TO LOAD THE NAMES INTO THE CONTEST PAGES
+
+    - We need to make sure we only get the names when we need them. This is something where we need to update the state, to keep our app clean, let's go update this inside the App component.
+
+    [cue superfriends whirly transition]
+
+    - We'll configure the App component to pass down the properties to each Contest, so the names are available on the state, where will then render them within a list according to the number assigned to each name
+
+    - We made a function in App.js to pass to the contest component, which we'll use to directly lookup the appropriate name for each person in our list.
+
+        - A problem: On inital load, the names structure will not be available on the state, it will be undefined since it only gets set when componentDidMount actually runs.
+
+        A solution, put a little waiting message in your lookup function
+
+    - When getting crap in an array and putting it into other components, you'll need a key for the array
+
+    - We also need to account for when no names exist, which currently gives us a 404
+
+        - We'll solve this in the frontend for simplicity's sake
+
+    USING MONGO'S UNIQUE _ID SYSTEM
+
+    We'll create a script to use these, since as websites get more complex, you will need these types of IDs and shit automated..
+
+
+    - to find an _id in MongoDb, you need to specify the whole object id as such:
+
+    _id: ObjectId("5aee9a0cda447c1ca8bf415e")
+
+    - These exist for Mongo to serialize stuff, even if you don't provide your own ids for stuff
+        - These also store the creation time within them
+
+    STEP 1: Update the database to use _id for relations
+
+        - this is in updateTestData.js
+            - This took the manual ids (101, 102 for the names) and changed them to use those fancy ObjectId()sssss
+
+        - If you want to find anything in Mongo, you have to use the ObjectId syntax
+
+        - the MongoDb driver that we're using to connect to the database also has an ObjectID
+
+        We went through the following files:
+
+        - index.js (api)
+        - serverRender.js
+        - App.js
+        - ContestPreview.js
+
+        Once we set these new _ids for our api, the old routes will no longer work. We should put 404 pages not found here in that case. We'll do this in server.js
+
+        IMPLEMENTING THE NEW NAME FEATURE
+
+        -First we'll create the API endpoints for the names submitted
+
+            - We need to use bodyparser middleware to do this
+
+            - When you post, remember to validate the info, and set the ID to be an Object since that's how Mongo wants everything
+
+        - It will create a name, read the created nameID, and then append the name to the corresponding contest, and return the newname info
+
+        We also need to tell the client that we need to update the contest, which we'll do on the server.
+
+        - We'll update the database via Mongodb's find and modify method.
+
+            - So first we'll instantiate the appropriate collection
+
+            -In that instantiation, we give the database the name, then use the promise to use a 'result' object pushing our findAndModify information.
+
+                - findAndModify is weird, so doublecheck this part before using.
+                    - The first argument is the thing you want to add, the second is a sort preference if you get a lot of shit back, the third is the thing you want to modify (in this case, the nameIds property and push the new nameId)
+
+
+                - We'll use Mongo's $push to put a new result.insertedId value on the nameIds object. Then we'll use another argument which specifies that the push is new content.
+
+                - This findAndModify funcion also gets a promise, which will send the data back out to the UI
+
+            - Once all of this is ready, we can go ahead and send it via the API
+
+        WRITING THE PROPOSED NAME TO THE UI
+
+        - In the component where we use the form, we'll need a handler for the submission process.
+
+        We'll create an onSubmit function on the form itself.
+
+        1. First we prevent the default behavior of the form, using preventDefault.
+
+        2. Next we read (and validate ) the value that the user typed.
+
+            - The easiest way to do this is to read it from the DOM directly.
+
+            - once we instantiate the ref on the input, we use this.refs to find the ref that we're looking for. It will give us the DOM object here, so we need to specify that we want the value with .value.
+
+        ** Remember that the Contest.js is a child component and essentially just an interface, so we should use App.js to actually grab the value and add it to the database.
+
+        We'll make addName in the App.js and have it available to Contest.js as a prop. We can now use it in our handleSubmit function, but don't forget that we'll also need a _id (the contestId) to add it to the database.
+
+    Next we need to create an API endpoint for our addName function. This function will have the new name and the contestId as arguments.
+
+        - This time it will be a post call, with the api route for names, and then the object itself as such:
+
+        .post(`/api/names`, {})
+
+        - We then place our new api endpoint into addName of our App.js, where the promise handles a state change
+
+            - Notice that the function will give us an updated contest and a newName object, where the contest is an object consisting of the contests and the particular contest we pushing onto the rest of them. Notice the way this is structured pushes the info to the correct contest within the context of the rest of the contests available. Getting this right is key to keeping everything clean across the whole stack.
+
+        CHALLENGES
+
+        - Prevent the submission of empty fields (proper form validation)
+
+        - What about errors in submission, what do you tell the user? And what about errors in the server, what do you tell the user?
+
+        - What should we do if the list gets duper long??
