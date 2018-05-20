@@ -5,6 +5,11 @@ class Contest extends Component {
   componentDidMount() {
     this.props.fetchNames(this.props.nameIds);
   }
+  handleRemove = (name) => (event) => {
+    event.preventDefault();
+    console.log(name);
+    this.props.removeName(name, this.props._id);
+  }
   handleSubmit = (event) => {
     event.preventDefault();
     this.props.addName(this.refs.newNameInput.value, this.props._id);
@@ -32,7 +37,7 @@ class Contest extends Component {
             <ul className="list-group">
               {this.props.nameIds.map(nameId =>
                 <li key={nameId} className="list-group-item">
-                  {this.props.lookupName(nameId).name}
+                  <div>{this.props.lookupName(nameId).name}<button className="removeName" onClick={this.handleRemove(nameId)}>Remove</button></div>
                 </li>
               )}
             </ul>
@@ -59,7 +64,7 @@ class Contest extends Component {
 
         <div className="home-link link"
              onClick={this.props.contestListClick}>
-          Contest List
+          Back to Contest List
         </div>
       </div>
     );
@@ -73,7 +78,9 @@ Contest.propTypes = {
   fetchNames: PropTypes.func.isRequired,
   nameIds: PropTypes.array.isRequired,
   lookupName: PropTypes.func.isRequired,
-  addName: PropTypes.func.isRequired
+  addName: PropTypes.func.isRequired,
+  removeName: PropTypes.func.isRequired
+
 };
 
 export default Contest;
