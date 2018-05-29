@@ -5,11 +5,10 @@ class Contest extends Component {
   componentDidMount() {
     this.props.fetchNames(this.props.nameIds);
   }
-  handleRemove = (name) => (event) => {
+  handleRemove = (nameId) => (event) => {
     event.preventDefault();
-    console.log(name);
-    this.props.removeName(name, this.props._id);
-  }
+    this.props.removeName(nameId, this.props.nameIds, this.props._id);
+};
   handleSubmit = (event) => {
     event.preventDefault();
     this.props.addName(this.refs.newNameInput.value, this.props._id);

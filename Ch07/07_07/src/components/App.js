@@ -27,6 +27,7 @@ class App extends React.Component {
   componentWillUnmount() {
     onPopState(null);
   }
+
   fetchContest = (contestId) => {
     pushState(
       { currentContestId: contestId },
@@ -42,6 +43,7 @@ class App extends React.Component {
       });
     });
   };
+
   fetchContestList = () => {
     pushState(
       { currentContestId: null },
@@ -54,6 +56,7 @@ class App extends React.Component {
       });
     });
   };
+
   fetchNames = (nameIds) => {
     if (nameIds.length === 0) {
       return;
@@ -64,9 +67,13 @@ class App extends React.Component {
       });
     });
   };
+
+
   currentContest() {
     return this.state.contests[this.state.currentContestId];
   }
+
+
   pageHeader() {
     if (this.state.currentContestId) {
       return this.currentContest().contestName;
@@ -74,6 +81,8 @@ class App extends React.Component {
 
     return 'Naming Contests';
   }
+
+
   lookupName = (nameId) => {
     if (!this.state.names || !this.state.names[nameId]) {
       return {
@@ -82,6 +91,7 @@ class App extends React.Component {
     }
     return this.state.names[nameId];
   };
+
   addName = (newName, contestId) => {
       // Adds to the database via API
       api.addName(newName, contestId).then(resp =>
@@ -97,6 +107,23 @@ class App extends React.Component {
           })
       ).catch(console.error);
   }
+
+  removeName = (nameId, nameIds, contestId) => {
+      // Removes a name from the database via API
+      api.removeName(nameId, nameIds, contestId).then(resp =>
+        this.setState({
+            contests: {
+                ...this.state.contests,
+                [resp.updatedContest._id]: resp.updatedContest
+            },
+            names: {
+                ...this.state.names
+            }
+        })
+    ).catch(
+        console.error);
+  }
+
   currentContent() {
     if (this.state.currentContestId) {
       return <Contest
@@ -104,6 +131,7 @@ class App extends React.Component {
                fetchNames={this.fetchNames}
                lookupName={this.lookupName}
                addName={this.addName}
+               removeName={this.removeName}
                {...this.currentContest()} />;
     }
 

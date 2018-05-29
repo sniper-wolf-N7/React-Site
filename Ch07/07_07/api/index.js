@@ -81,4 +81,28 @@ router.post('/names', (req, res) => {
   });
 });
 
+router.delete('/names', (req, res) => {
+  const contestId = ObjectID(req.body.contestId);
+  const nameId = ObjectID(req.body.nameId);
+  console.log("In router method");
+  // validation ...
+  mdb.collection('names').findOneAndDelete({ _id: nameId }).then(result =>
+    mdb.collection('contests').findAndModify(
+      { _id: contestId },
+      [],
+      { $pull: { nameIds: result.deletedId } },
+      { new: true }
+    ).then(doc =>
+      res.send({
+        updatedContest: doc.value,
+        removedName: { _id: result.deletedId, name }
+      })
+    )
+  )
+  .catch(error => {
+    console.error(error);
+    res.status(404).send('Bad Request couldn\'t delete shit');
+  });
+});
+
 export default router;

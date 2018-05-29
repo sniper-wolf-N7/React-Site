@@ -1,3 +1,10 @@
+/*  config.js
+ *
+ *  Currently configured to host site on port 8080 from any IP. Connects to
+ *  MongoDb via 27017
+ */
+
+
 const env = process.env;
 
 export const nodeEnv = env.NODE_ENV || 'development';
