@@ -7,7 +7,8 @@ class Contest extends Component {
   }
   handleRemove = (nameId) => (event) => {
     event.preventDefault();
-    this.props.removeName(nameId, this.props.nameIds, this.props._id);
+    this.props.removeName(nameId, this.props._id);
+    //console.log(this.props.nameIds);
 };
   handleSubmit = (event) => {
     event.preventDefault();

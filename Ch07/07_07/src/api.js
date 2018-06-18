@@ -16,11 +16,11 @@ export const fetchNames = nameIds => {
 };
 
 export const addName = (newName, contestId) => {
-  return axios.post(`/api/names`, { newName, contestId })
+    return axios.post(`/api/names`, { newName, contestId })
               .then(resp => resp.data);
 };
 
-export const removeName = (nameId, nameIds, contestId) => {
-    return axios.delete(`/api/names/${nameIds.join(',')}`, { nameId, contestId })
-              .then(resp => resp.data);
+export const removeName = (nameId, contestId) => {
+    return axios.post(`/api/names/${nameId}`, { nameId, contestId })
+               .then(resp => resp.data);
 };

@@ -108,17 +108,23 @@ class App extends React.Component {
       ).catch(console.error);
   }
 
-  removeName = (nameId, nameIds, contestId) => {
+  removeName = (nameId, contestId) => {
       // Removes a name from the database via API
-      api.removeName(nameId, nameIds, contestId).then(resp =>
-        this.setState({
-            contests: {
-                ...this.state.contests,
-                [resp.updatedContest._id]: resp.updatedContest
-            },
-            names: {
-                ...this.state.names
-            }
+
+      // TODO: Get rid of names array when there are no more names, and update the names array to remove the one that got deleted
+
+      // TODO: Back button retains state of Contest page when switched back to ContestList, which is why it only lists that contest  until it is reloaded
+
+      api.removeName(nameId, contestId).then(resp => //console.log(resp.updatedContest.nameIds)
+         this.setState({
+             contests: {
+                 ...this.state.contests,
+                 [resp.updatedContest._id]: resp.updatedContest
+             },
+             names: {
+                 ...this.state.names,
+                 [this.state.names]: resp.nameIds
+             }
         })
     ).catch(
         console.error);
